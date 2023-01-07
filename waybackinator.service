@@ -1,0 +1,11 @@
+[Unit]
+Description=waybackinator
+
+[Service]
+Environment=SYSTEMD_LOG_LEVEL=debug 
+Type=simple
+Restart=always
+RestartSec=5s
+WorkingDirectory=/home/david/src/waybackinator.com
+ExecStart=/home/david/src/waybackinator.com/waybackinator.js
+

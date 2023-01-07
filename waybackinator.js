@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const http = require('node:http');
 const https = require('node:https');
 const process = require('node:process');
