@@ -116,7 +116,7 @@ function getArchiveURL(url, callback) {
   let archiveURL = cache.lookup(url);
   if (archiveURL !== undefined) {
     console.log(`retrieved ${url} from cache`);
-    return callback({archiveURL});
+    return callback({archiveURL, inCache: true});
   }
 
   return fetchArchiveURL(url, callback);
@@ -130,11 +130,13 @@ function onRequest (request, response) {
   }
   console.log('Received request for url: ', url);
   
-  getArchiveURL(url, ({archiveURL, error}) => {
+  getArchiveURL(url, ({archiveURL, inCache, error}) => {
       if (error !== undefined) {
         deliverError(response, error);
       } else {
-        cache.set(url, archiveURL);
+	if (!inCache) {
+          cache.set(url, archiveURL);
+	}
         deliverSuccess(response, archiveURL);
       }
   });
