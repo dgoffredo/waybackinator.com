@@ -1,0 +1,14 @@
+services:
+  nginx:
+    image: 'nginx:1.23.3-alpine'
+    volumes:
+      - './index.html:/var/www/html/waybackinator.com/index.html:ro'
+      - './nginx.conf:/etc/nginx/conf.d/default.conf:ro'
+    ports:
+      - '8000:80'
+
+  waybackinator:
+    image: 'node:19.4.0-alpine3.16'
+    volumes:
+      - './waybackinator.js:/usr/local/bin/waybackinator.js:ro'
+    command: 'node /usr/local/bin/waybackinator.js'

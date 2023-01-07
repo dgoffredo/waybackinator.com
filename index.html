@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>waybackinator</title>
+    <script>
+    function onSubmit() {
+        const url = document.getElementById('url').value;
+        document.getElementById('query').action = `/${url}`;
+        return true;
+    }
+    </script>
+    <style>
+    form, input {
+      width: 100%;
+    }
+    </style>
+  </head>
+  <body>
+    <p>
+        Submit a URL below, or append it to the address bar.
+    </p>
+    <form id="query" name="query" method="get" onsubmit="onSubmit()">
+        <input id="url" width="100%"/>
+    </form>
+  </body>
+</html>
