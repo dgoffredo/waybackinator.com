@@ -1,0 +1,6 @@
+If you're looking for a bug to exploit, this website's source is hosted at
+<https://github.com/dgoffredo/waybackinator.com>.
+
+If you're looking for a person to exploit, my email address is
+<dmgoffredo@gmail.com>.
+
