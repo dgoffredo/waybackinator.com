@@ -75,7 +75,7 @@ const cache = (() => {
   const entries = {}; // input url -> {output url, Date.now() when added}
   let numEntries = 0; // number of elements in `entries`
   // singly-linked list for LRU eviction
-  // Each element is {url, addedTime, next}
+  // Each element is {url, added, next}
   let additionHead; // first element in singly-linked list for LRU eviction
   let additionTail; // last element in singly-linked list for LRU eviction
   return {
@@ -87,8 +87,8 @@ const cache = (() => {
         return;
       }
 
-      const {archiveURL, addedTime} = entry;
-      if (now - addedTime >= evictionMilliseconds) {
+      const {archiveURL, added} = entry;
+      if (now - added >= evictionMilliseconds) {
         delete entries[url];
         --numEntries;
         return;
@@ -100,16 +100,16 @@ const cache = (() => {
     set : (inputURL, archiveURL) => {
       const now = Date.now();
       while (numEntries === maxNumEntries) {
-        const {url, addedTime, next} = additionHead;
+        const {url, added, next} = additionHead;
         const entry = entries[url];
-        if (entry.addedTime === addedTime) {
+        if (entry.added === added) {
           delete entries[url];
           --numEntries;
         }
         additionHead = next;
       }
-      entries[inputURL] = {archiveURL, addedTime : now};
-      const addition = {url : inputURL, addedTime : now};
+      entries[inputURL] = {archiveURL, added : now};
+      const addition = {url : inputURL, added : now};
       if (!additionHead) {
         additionHead = addition;
       } else if (additionTail) {
@@ -119,9 +119,22 @@ const cache = (() => {
         additionTail = addition;
       }
       ++numEntries;
-    }
+    },
+    dump : () => entries
   };
 })();
+
+function deliverCache(response) {
+  response.setHeader('Content-Type', 'application/json');
+  response.writeHead(200);
+  response.end(JSON.stringify(
+      Object.fromEntries(
+          Object.entries(cache.dump())
+              .map(([
+                     key, {archiveURL, added}
+                   ]) => [key, {url : archiveURL, added : new Date(added)}])),
+      null, 2));
+}
 
 function getArchiveURL(url, callback) {
   // Check the cache.
@@ -140,7 +153,11 @@ function onRequest(request, response) {
     // Empty HTML form might leave a trailing empty query.
     url = url.slice(0, -1);
   }
-  console.log('Received request for url: ', url);
+  console.log('Received request for: ', url);
+
+  if (url === 'cache') {
+    return deliverCache(response);
+  }
 
   if (!isPlausible(url)) {
     return deliverError(response, 'Your query is bad and you should feel bad.');
