@@ -12,7 +12,7 @@ const httpsAgent = new https.Agent({keepAlive : true});
 // `isPlausible` checks the prefix of `url` against a regex that approximates
 // a valid HTTP scheme and authority.
 function isPlausible(url) {
-  return (/'^(https?:\/\/)?[^.\/]+(\.[^.\/]+)+\.?(\/|$)'/).test(url);
+  return (/^(https?:\/\/)?[^.\/]+(\.[^.\/]+)+\.?(\/|$)/).test(url);
 }
 
 // url -> {archiveURL: string, error: string}
