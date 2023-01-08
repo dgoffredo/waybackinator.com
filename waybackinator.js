@@ -65,7 +65,7 @@ function fetchArchiveURL(url, callback) {
 
 function escapeForHTML(raw) {
   return raw.replace(
-      /["<&]/, char => ({'"' : '&quot;', '<' : '&lt;', '&' : '&amp;'}[char]));
+      /["<&]/g, char => ({'"' : '&quot;', '<' : '&lt;', '&' : '&amp;'}[char]));
 }
 
 // LRU cache
