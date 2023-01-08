@@ -7,6 +7,13 @@ const querystring = require('node:querystring');
 
 const httpsAgent = new https.Agent({keepAlive: true});
 
+// Naughty bots request all kinds of garbage.  A lot of it doesn't even look
+// like a web resource, e.g. "debug/default/view?panel=config".
+// `isPlausible` checks the prefix of `url` against a regex that approximates
+// a valid HTTP scheme and authority.
+function isPlausible(url) {
+  return (/'^(https?:\/\/)?[^.\/]+(\.[^.\/]+)+\.?(\/|$)'/).test(url);
+
 // url -> {archiveURL: string, error: string}
 function fetchArchiveURL(url, callback) {
     const requestOptions = {
@@ -129,16 +136,20 @@ function onRequest (request, response) {
     url = url.slice(0, -1);
   }
   console.log('Received request for url: ', url);
-  
+
+  if (!isPlausible(url)) {
+    return deliverError(response, 'Your query is bad and you should feel bad.');
+  }
+
   getArchiveURL(url, ({archiveURL, inCache, error}) => {
       if (error !== undefined) {
-        deliverError(response, error);
-      } else {
-	if (!inCache) {
-          cache.set(url, archiveURL);
-	}
-        deliverSuccess(response, archiveURL);
+        return deliverError(response, error);
       }
+
+      if (!inCache) {
+        cache.set(url, archiveURL);
+      }
+      deliverSuccess(response, archiveURL);
   });
 }
 
