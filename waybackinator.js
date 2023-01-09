@@ -82,16 +82,16 @@ function escapeForHTML(raw) {
       /["<&]/g, char => ({'"' : '&quot;', '<' : '&lt;', '&' : '&amp;'}[char]));
 }
 
-// LRU cache
+// LRA cache
 const cache = (() => {
   const evictionMilliseconds = 1000 * 60 * 60;
   const maxNumEntries = 1024 * 32;
   const entries = {}; // input url -> {output url, Date.now() when added}
   let numEntries = 0; // number of elements in `entries`
-  // singly-linked list for LRU eviction
+  // singly-linked list for LRA eviction
   // Each element is {url, added, next}
-  let additionHead; // first element in singly-linked list for LRU eviction
-  let additionTail; // last element in singly-linked list for LRU eviction
+  let additionHead; // first element in singly-linked list for LRA eviction
+  let additionTail; // last element in singly-linked list for LRA eviction
   return {
     // url -> archiveURL | undefined
     lookup : url => {
