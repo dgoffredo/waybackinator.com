@@ -7,5 +7,4 @@ Type=simple
 Restart=always
 RestartSec=5s
 WorkingDirectory=/home/david/src/waybackinator.com
-ExecStart=/home/david/src/waybackinator.com/waybackinator.js
-
+ExecStart=/home/david/src/waybackinator.com/waybackinator.js /home/david/src/waybackinator.com/tlds-alpha-by-domain.txt

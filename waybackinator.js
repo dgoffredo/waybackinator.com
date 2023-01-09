@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require('node:fs');
 const http = require('node:http');
 const https = require('node:https');
 const process = require('node:process');
@@ -10,10 +11,23 @@ const httpsAgent = new https.Agent({keepAlive : true});
 // Naughty bots request all kinds of garbage.  A lot of it doesn't even look
 // like a web resource, e.g. "debug/default/view?panel=config".
 // `isPlausible` checks the prefix of `url` against a regex that approximates
-// a valid HTTP scheme and authority.
-function isPlausible(url) {
-  return (/^(https?:\/\/)?[^.\/]+(\.[^.\/]+)+\.?(\/|$)/).test(url);
-}
+// a valid HTTP scheme and authority, and then checks that the toplevel domain
+// is valid.
+const isPlausible = (() => {
+  const regex = /^(https?:\/\/)?[^.\/]+(\.(?<topLevelDomain>[^.\/]+))+\.?(\/|$)/;
+  const topLevelDomains = new Set();
+  const [node, script, domainsFile] = process.argv;
+  fs.readFileSync(domainsFile, 'utf8')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0 && line[0] !== '#')
+    .forEach(domain => topLevelDomains.add(domain.toLowerCase()));
+
+  return url => {
+    const match = url.match(regex);
+    return match !== null && topLevelDomains.has(match.groups.topLevelDomain.toLowerCase());
+  };
+})();
 
 // url -> {archiveURL: string, error: string}
 function fetchArchiveURL(url, callback) {
